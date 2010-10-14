@@ -342,7 +342,9 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 						currentParagraph = FactoryProperties
 								.createParagraph(cprops);
 					}
-					currentParagraph.add(new Chunk(img, 0, 0));
+					// Line height should be adjusted based on image height
+					// Otherwise, images taller a line of text will overflow content above
+					currentParagraph.add(new Chunk(img, 0, 0, true));
 				}
 				return;
 			}
