@@ -83,5 +83,12 @@ public interface PdfPTableEvent {
      */    
     public void tableLayout(PdfPTable table, float widths[][], float heights[], int headerRows, int rowStart, PdfContentByte[] canvases);
 
+    /**
+     * This method is called to indicate that table is being split. 
+     * 
+     * @param table the <CODE>PdfPTable</CODE> in use
+     */
+    public void splitTable(PdfPTable table);
+
 }
 

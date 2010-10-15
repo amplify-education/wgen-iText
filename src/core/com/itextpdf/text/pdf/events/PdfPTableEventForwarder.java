@@ -77,4 +77,13 @@ public class PdfPTableEventForwarder implements PdfPTableEvent {
 			event.tableLayout(table, widths, heights, headerRows, rowStart, canvases);
 		}
 	}
+
+	/**
+	 * @see com.itextpdf.text.pdf.PdfPTableEvent#splitTable(com.itextpdf.text.pdf.PdfPTable)
+	 */
+    	public void splitTable(PdfPTable table) {
+		for (PdfPTableEvent event: events) {
+			event.splitTable(table);
+		}
+    	}
 }

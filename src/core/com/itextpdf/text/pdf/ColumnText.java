@@ -1435,6 +1435,11 @@ public class ColumnText {
                     	nt.setComplete(true);
                     	showFooter = true;
                     	newPageFollows = true;
+                    	// newPageFollows indicate that this table is being split
+        		PdfPTableEvent tableEvent = table.getTableEvent();
+        		if(tableEvent != null) {
+        		    tableEvent.splitTable(table);
+        		}
                     }
                     // we add the footer rows if necessary (not for incomplete tables)
                     for (int j = 0; j < footerRows && nt.isComplete() && showFooter; ++j)
