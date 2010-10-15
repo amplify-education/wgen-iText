@@ -1466,7 +1466,14 @@ public class ColumnText {
                 if (!(skipHeader || table.isComplete()))
                 	yLine += footerHeight;
                 if (k >= table.size()) {
-                    yLine -= table.spacingAfter();
+                    // It is ok if table spacing does not fit to the current page
+                    // Only use up as much as left
+                    if(yLine - table.spacingAfter() < minY) {
+	                yLine = minY;
+                    }
+                    else {
+	                yLine -= table.spacingAfter();
+                    }
                     compositeElements.removeFirst();
                     splittedRow = false;
                     listIdx = 0;
