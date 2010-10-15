@@ -916,6 +916,8 @@ public abstract class Image extends Rectangle {
 		this.scaledHeight = image.scaledHeight;
 		this.mySerialId = image.mySerialId;
 
+		this.scaleToFitLineWhenOverflow = image.scaleToFitLineWhenOverflow;
+
         this.directReference = image.directReference;
 
 		this.rotationRadians = image.rotationRadians;
@@ -1307,6 +1309,25 @@ public abstract class Image extends Rectangle {
 		float percentY = fitHeight * 100 / getScaledHeight();
 		scalePercent(percentX < percentY ? percentX : percentY);
 		setWidthPercentage(0);
+	}
+
+	/** Indicates if the image should be scaled to fit the line when image itself does not fit to the line */
+	protected boolean scaleToFitLineWhenOverflow;
+	
+	/**
+	 * If set to true, scales the image to fit the line only if it does not fit the line
+	 * 
+	 * @param scale
+	 */
+	public void setScaleToFitLineWhenOverflow(boolean scale) {
+		scaleToFitLineWhenOverflow = scale;
+	}
+	
+	/**
+	 * Returns if image should be scaled to fit the line when it does not fit the line
+	 */
+	public boolean getScaleToFitLineWhenOverflow() {
+		return scaleToFitLineWhenOverflow;
 	}
 
 	/**

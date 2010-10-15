@@ -430,6 +430,12 @@ public class PdfChunk {
     PdfChunk truncate(float width) {
         if (image != null) {
             if (image.getScaledWidth() > width) {
+		// If scaling is requested scale image to fit line
+            	if (image.getScaleToFitLineWhenOverflow()) {
+            		float scalePercent = width / image.getWidth() * 100;
+            		image.scalePercent(scalePercent);
+            		return null;
+            	}
                 PdfChunk pc = new PdfChunk("", this);
                 value = "";
                 attributes.remove(Chunk.IMAGE);
