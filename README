@@ -1,0 +1,4 @@
+* In order to compile the source code run "ant jar" under /src directory
+  Once build completes iText jar will be put under /lib directory
+
+* In order to create the source for the jar run "ant archive" under /src directory
