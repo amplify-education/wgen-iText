@@ -1435,11 +1435,6 @@ public class ColumnText {
                     	nt.setComplete(true);
                     	showFooter = true;
                     	newPageFollows = true;
-                    	// newPageFollows indicate that this table is being split
-        		PdfPTableEvent tableEvent = table.getTableEvent();
-        		if(tableEvent != null) {
-        		    tableEvent.splitTable(table);
-        		}
                     }
                     // we add the footer rows if necessary (not for incomplete tables)
                     for (int j = 0; j < footerRows && nt.isComplete() && showFooter; ++j)
@@ -1455,6 +1450,16 @@ public class ColumnText {
                         last.setMaxHeights(yTemp - minY + rowHeight);
                         yTemp = minY;
                     }
+            	    // WGEN Patch v7: Need a way to know table is split
+                    // newPageFollows indicate that this table is being split
+                    if (newPageFollows) {
+                        // newPageFollows indicate that this table is being split
+                        PdfPTableEvent tableEvent = table.getTableEvent();
+                        if (tableEvent instanceof PdfPTableEventSplit) {
+                            ((PdfPTableEventSplit)tableEvent).splitTable(table);
+                        }
+                    }
+            	    // WGEN Patch v7: Need a way to know table is split
 
                     // now we render the rows of the new table
                     if (canvases != null)
