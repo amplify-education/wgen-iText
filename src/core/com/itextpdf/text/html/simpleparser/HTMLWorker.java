@@ -586,17 +586,21 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 				pendingTR = false;
 				cprops.removeChain("tr");
 				ArrayList<PdfPCell> cells = new ArrayList<PdfPCell>();
+				ArrayList<Float> fixedCellwidths = new  ArrayList<Float>(); 
 				IncTable table = null;
 				while (true) {
 					Element obj = stack.pop();
 					if (obj instanceof IncCell) {
-						cells.add(((IncCell) obj).getCell());
+						IncCell newCell = (IncCell) obj;
+						fixedCellwidths.add(newCell.getFixedWidth());
+						cells.add(newCell.getCell());
 					}
 					if (obj instanceof IncTable) {
 						table = (IncTable) obj;
 						break;
 					}
 				}
+				table.addFixedCellWidths(fixedCellwidths);
 				table.addCols(cells);
 				table.endRow();
 				stack.push(table);

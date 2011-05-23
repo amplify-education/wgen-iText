@@ -311,6 +311,10 @@ public class PdfPTable implements LargeElement{
         calculateHeights(true);
     }
 
+    public float[] getWidths() {
+    	return relativeWidths;
+    }
+    
     /**
      * Sets the relative widths of the table.
      *

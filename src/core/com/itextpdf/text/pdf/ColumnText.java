@@ -55,6 +55,7 @@ import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.error_messages.MessageLocalization;
+import com.itextpdf.text.html.simpleparser.IncTable;
 import com.itextpdf.text.pdf.draw.DrawInterface;
 
 /**
@@ -1332,7 +1333,9 @@ public class ColumnText {
                 }
                 else {
                     tableWidth = rectangularWidth * table.getWidthPercentage() / 100f;
+                    float[] fixedCellWidths = IncTable.getColumnWidths(tableWidth, table.getWidths());
                     table.setTotalWidth(tableWidth);
+                    table.setWidths(fixedCellWidths);
                 }
 
                 // how many header rows are real header rows; how many are footer rows?

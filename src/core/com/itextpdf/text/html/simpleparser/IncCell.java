@@ -60,6 +60,7 @@ public class IncCell implements TextElementArray {
 
     private ArrayList<Chunk> chunks = new ArrayList<Chunk>();
     private PdfPCell cell;
+    private Float fixedWidth = null;
 
     /** Creates a new instance of IncCell */
     public IncCell(String tag, ChainedProperties props) {
@@ -102,6 +103,11 @@ public class IncCell implements TextElementArray {
         cell.setUseDescender(true);
         value = props.getProperty("bgcolor");
         cell.setBackgroundColor(Markup.decodeColor(value));
+        value = props.getUnchainedProperty("width");
+        if(value != null) {
+        	fixedWidth = Markup.parseLength(value);
+        }
+        
     }
 
     public boolean add(Element o) {
@@ -125,6 +131,10 @@ public class IncCell implements TextElementArray {
         return cell;
     }
 
+    public Float getFixedWidth() {
+    	return fixedWidth;
+    }
+    
 	/**
 	 * @see com.itextpdf.text.Element#isContent()
 	 * @since	iText 2.0.8

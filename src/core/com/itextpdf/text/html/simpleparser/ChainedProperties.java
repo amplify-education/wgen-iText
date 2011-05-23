@@ -77,6 +77,23 @@ public class ChainedProperties {
 		}
 		return null;
 	}
+	
+	/**
+	 * Returns only if the immediate element has the property 
+	 * and does not look at nested parent element properties
+	 * @param key
+	 * @return
+	 */
+    public String getUnchainedProperty(String key) {
+        String ret = null;
+        if (!chain.isEmpty()) {
+            int lastEl = chain.size() - 1;
+            ChainedProperty p = chain.get(lastEl);
+            HashMap<String, String> prop = p.property;
+            ret = prop.get(key);
+        }
+        return ret;
+    }
 
 	public boolean hasProperty(String key) {
 		for (int k = chain.size() - 1; k >= 0; --k) {

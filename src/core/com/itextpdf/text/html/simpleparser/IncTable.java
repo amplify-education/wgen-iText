@@ -48,9 +48,11 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import com.itextpdf.text.Chunk;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.ElementListener;
 import com.itextpdf.text.ElementTags;
+import com.itextpdf.text.html.Markup;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 
@@ -59,9 +61,13 @@ import com.itextpdf.text.pdf.PdfPTable;
  * @author  psoares
  */
 public class IncTable implements Element {
+    
+    private static float NO_WIDTH = -1;
+    
     private HashMap<String, String> props = new HashMap<String, String>();
     private ArrayList<ArrayList<PdfPCell>> rows = new ArrayList<ArrayList<PdfPCell>>();
     private ArrayList<PdfPCell> cols;
+    private ArrayList<Float> fixedCellWidths;
     /** Creates a new instance of IncTable */
     public IncTable(HashMap<String, String> props) {
         this.props.putAll(props);
@@ -78,6 +84,15 @@ public class IncTable implements Element {
             cols = new ArrayList<PdfPCell>(ncols);
         else
             cols.addAll(ncols);
+    }
+    
+    public void addFixedCellWidths(ArrayList<Float> widths) {
+        // If one of the previous row already defined valid cell widths we will use that
+    	if(isValidWidths(widths) && (this.fixedCellWidths == null)) {
+    		// Columns are processed in the reverse order due to stack usage
+    		Collections.reverse(widths);
+        	this.fixedCellWidths = widths;
+    	}
     }
 
     public void endRow() {
@@ -101,23 +116,38 @@ public class IncTable implements Element {
         }
         PdfPTable table = new PdfPTable(ncol);
         String width = props.get("width");
-        if (width == null)
+        if (width == null) {
             table.setWidthPercentage(100);
+            if(fixedCellWidths != null) {
+	            try {
+					table.setWidths(convertNullWidthToDefault(fixedCellWidths));
+				} catch (DocumentException e) {
+				}
+            }
+        }
         else {
-            if (width.endsWith("%"))
-                table.setWidthPercentage(Float.parseFloat(width.substring(0, width.length() - 1)));
+            if (width.endsWith("%")) {
+            	table.setWidthPercentage(Float.parseFloat(width.substring(0, width.length() - 1)));
+            }
             else {
-                table.setTotalWidth(Float.parseFloat(width));
+            	float tableWidth = Float.parseFloat(width);
+                table.setTotalWidth(tableWidth);
+                if(fixedCellWidths != null) {
+	                try {
+						table.setWidths(getColumnWidths(tableWidth, fixedCellWidths));
+					} catch (DocumentException e) {
+					}
+                }
                 table.setLockedWidth(true);
             }
         }
         // Support for horizontal alignment of tables via HTML conversion
         String alignment = props.get("align");
         int align = Element.ALIGN_LEFT;
-	if (alignment != null) {
-	    align = ElementTags.alignmentValue(alignment);
-	}
-	table.setHorizontalAlignment(align);
+		if (alignment != null) {
+		    align = ElementTags.alignmentValue(alignment);
+		}
+		table.setHorizontalAlignment(align);
 
         for (ArrayList<PdfPCell> col : rows) {
             for (PdfPCell pc : col) {
@@ -127,6 +157,77 @@ public class IncTable implements Element {
         return table;
     }
 
+    /**
+     * If at least one column has width, then it is a valid one
+     * @param widths
+     * @return
+     */
+    private static boolean isValidWidths(ArrayList<Float> widths) {
+    	for(Float width : widths) {
+    		if(width != null) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private static float[] convertNullWidthToDefault(ArrayList<Float> widths) {
+    	float[] relativeWidths = new float[widths.size()];
+    	for(int i=0; i<relativeWidths.length; i++) {
+    		Float columnWidth = widths.get(i);
+    		if(columnWidth != null) {
+    			relativeWidths[i] = columnWidth;
+    		}
+    		else {
+    			relativeWidths[i] = NO_WIDTH;
+    		}
+    	}
+    	return relativeWidths;
+    }
+    
+    /**
+     * Determines each cell width based on given width properties
+     * and evenly distrubutes remaining width
+     * between those cells that did not set certain width
+     * 
+     * @param tableWidth
+     * @param fixedCellWidths
+     * @return each cell width to fit the given tableWidth
+     */
+    private static float[] getColumnWidths(float tableWidth, ArrayList<Float> fixedCellWidths) {
+    	float[] widths = convertNullWidthToDefault(fixedCellWidths);
+    	return getColumnWidths(tableWidth, widths);
+    }
+    
+    /**
+     * Determines each cell width based on given width properties
+     * and evenly distrubutes remaining width
+     * between those cells that did not set certain width
+     * 
+     * @param tableWidth
+     * @param cellWidths
+     * @return each cell width to fit the given tableWidth
+     */
+    public static float[] getColumnWidths(float tableWidth, float[] cellWidths) {
+    	int noWidthColumnCounter = 0;
+    	float usedWidth = 0f; 
+    	for(int i=0; i<cellWidths.length; i++) {
+    		if(cellWidths[i] == NO_WIDTH) {
+    			noWidthColumnCounter++;
+    		}
+    		else {
+    			usedWidth += cellWidths[i];
+    		}
+    	}
+    	float unusedPerColumnWidth = (tableWidth - usedWidth) / noWidthColumnCounter;
+    	for(int i=0; i<cellWidths.length; i++) {
+    		if(cellWidths[i] == NO_WIDTH) {
+    			cellWidths[i] = unusedPerColumnWidth;
+    		}
+    	}
+    	return cellWidths;
+    }
+    
     /**
      * @since 5.0.1
      */
